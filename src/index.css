@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+/* Tailwind v4 暗色模式：基于 <html> 上的 `.dark` 类（由 AppLayout 按 settings.theme 切换） */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 主题 CSS 变量：语义化颜色，默认浅色；`.dark` 覆盖。
+   body 背景绑定变量，使整页背景随主题切换；
+   各页面的卡片容器可用 bg-[var(--surface-card)] 等，或用 dark: 类。 */
+:root {
+  --surface-app: #f8fafc; /* slate-50  */
+  --surface-card: #ffffff; /* white     */
+  color-scheme: light;
+}
+.dark {
+  --surface-app: #0f172a; /* slate-900 */
+  --surface-card: #1e293b; /* slate-800 */
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--surface-app);
+  /* 用户输入可能出现无空格长串（英文单词、URL、代码），
+     全局允许在必要时断行，避免撑宽布局导致移动端整页缩小 */
+  overflow-wrap: break-word;
+}
+
+/* 长英文/URL 等无空格长串不撑破容器 */
+.break-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ------------------------------------------------------------------ */
+/* 移动端可点区域                                                      */
+/* ------------------------------------------------------------------ */
+
+/* 图标型小按钮（× 删除、圆形勾选框等，均带 aria-label）：
+   视觉尺寸不变，只把命中区向外扩 10px，避免真机点不中 */
+button[aria-label="关闭"],
+button[aria-label^="移除"],
+button[aria-label^="标记"],
+button[aria-label^="取消关联"] {
+  position: relative;
+}
+button[aria-label="关闭"]::after,
+button[aria-label^="移除"]::after,
+button[aria-label^="标记"]::after,
+button[aria-label^="取消关联"]::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: 10px;
+}
+
+/* 文字按钮：移动端至少 36px 高（图标按钮已由上面的命中区扩展处理） */
+@media (max-width: 1023px) {
+  main button:not([aria-label]) {
+    min-height: 36px;
+  }
+  main label > input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* iOS / 移动 Chrome 对 < 16px 的输入控件会在聚焦时自动放大页面，
+     统一把表单控件字号提到 16px，避免点一下输入框整页被缩放 */
+  main input:not([type="checkbox"]):not([type="radio"]),
+  main textarea,
+  main select {
+    font-size: 16px;
+  }
+}
+
