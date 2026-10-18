@@ -43,9 +43,14 @@ npm run preview   # 本地预览 dist/
 
 ## 线上地址
 
-GitHub Pages：**https://<你的 GitHub 用户名>.github.io/self-driven-learning-lab/**
+GitHub Pages：**https://lostlamb123.github.io/self-driven-learning-lab/**
 
-> 该地址需要先把仓库推到 GitHub 并开启 Pages，再把上行地址中的 `<你的 GitHub 用户名>` 替换为真实用户名。仓库尚未创建时此地址不可访问。
+仓库：https://github.com/lostlamb123/self-driven-learning-lab（public）
+
+- 打开根路径会自动跳到 `#/today`；直接访问/刷新 `#/cards`、`#/reading`、`#/settings` 等深链接不会 404（HashRouter，服务端始终返回 `index.html`）。
+- 部署方式：推送到 `main` 触发 `.github/workflows/deploy.yml` → `npm ci` → `npm run build` → 上传 `dist` → 发布 Pages；也可在 Actions 页手动 Run workflow。
+- 仓库 Settings → Pages 的 Source 已设为 **GitHub Actions**（`build_type: workflow`）。
+  > 注意：GitHub Free 计划只能从 **public** 仓库发布 Pages；若改回 private，需升级到 Pro/Team，否则部署会在 Setup Pages 步骤报 `Resource not accessible by integration`。
 
 部署要点：GitHub Pages 的项目页跑在子路径下，构建时需要带前缀。`vite.config.ts` 已内置判断——在 GitHub Actions 环境（自动注入 `GITHUB_ACTIONS`）里构建会自动使用 `/self-driven-learning-lab/`，本地构建仍是根路径：
 
