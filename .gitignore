@@ -13,3 +13,7 @@ dist-ssr/
 
 # 日志
 *.log
+
+# 本地测试截图（Playwright 走查产物，不入库）
+.audit/
+regression-screens/

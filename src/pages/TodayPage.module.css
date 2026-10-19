@@ -1,0 +1,17 @@
+/* 今日页 —— 极少量补充样式（其余用 Tailwind 工具类）
+   仅承载 streak footer 下方那句原理短句，跟随 index.css 的主题（.dark 类）切换。 */
+
+/* 连续做到的原理短句：比 footer 主文本更小、更浅，无边框无背景 */
+.streakHint {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #94a3b8;
+  border: none;
+  /* 换行时避免尾行只剩一两个字（不支持的浏览器自动回落为普通换行） */
+  text-wrap: pretty;
+}
+
+:global(.dark) .streakHint {
+  color: #64748b;
+}

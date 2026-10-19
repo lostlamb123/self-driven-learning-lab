@@ -1,0 +1,595 @@
+/* 今日最小行动 —— 轻量样式（CSS Modules，无 UI 组件库）
+   跟随 index.css 的主题变量：浅色/暗色自动切换。
+   样式基调：移动端优先单列、大量留白、12px 圆角、浅灰边框，
+   不使用红色 / 警告色 / 倒计时。 */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 模块标题 */
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #334155;
+}
+
+.sectionLead {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+:global(.dark) .sectionTitle {
+  color: #e2e8f0;
+}
+
+/* ---------------------------------------------------------------- */
+/* 输入区                                                            */
+/* ---------------------------------------------------------------- */
+
+.formCard {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: var(--surface-card, #fff);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+:global(.dark) .formCard {
+  border-color: #334155;
+}
+
+.lead {
+  font-size: 0.875rem;
+  color: #0d9488;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background: #fff;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  resize: none;
+  min-height: 72px;
+  line-height: 1.5;
+}
+
+.input::placeholder {
+  color: #94a3b8;
+}
+
+.input:focus {
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+}
+
+:global(.dark) .input {
+  background: #0f172a;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+/* 标签区 */
+.tagLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.chip:hover {
+  border-color: #5eead4;
+  background: #f0fdfa;
+}
+
+.chipActive {
+  border-color: #0d9488;
+  background: #ccfbf1;
+  color: #0f766e;
+  font-weight: 600;
+}
+
+:global(.dark) .chip {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+:global(.dark) .chipActive {
+  background: #134e4a;
+  border-color: #2dd4bf;
+  color: #5eead4;
+}
+
+/* 选中标签后出现的原理短句 */
+.principle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #0f766e;
+  line-height: 1.5;
+}
+
+.principleIcon {
+  flex: none;
+  line-height: 1.5;
+}
+
+.principleText {
+  flex: 1;
+}
+
+:global(.dark) .principle {
+  background: #134e4a;
+  border-color: #2dd4bf;
+  color: #99f6e4;
+}
+
+/* 难度自评 */
+.difficultyRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.difficultyTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-right: 0.25rem;
+}
+
+.difficultyChip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.difficultyChip:hover {
+  border-color: #94a3b8;
+}
+
+.difficultyChipActive {
+  border-color: #0f172a;
+  background: #0f172a;
+  color: #fff;
+  font-weight: 600;
+}
+
+:global(.dark) .difficultyChip {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+:global(.dark) .difficultyChipActive {
+  background: #e2e8f0;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+/* 难度自评选中后的即时反馈小字：无边框、无背景，跟随主题色 */
+.difficultyFeedback {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+:global(.dark) .difficultyFeedback {
+  color: #94a3b8;
+}
+
+/* 提交按钮 */
+.submitBtn {
+  align-self: flex-start;
+  background: #0d9488;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.submitBtn:hover {
+  background: #0f766e;
+}
+
+.submitBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------- */
+/* 行动卡片列表                                                      */
+/* ---------------------------------------------------------------- */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.empty {
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: var(--surface-card, #fff);
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+:global(.dark) .empty {
+  border-color: #475569;
+}
+
+/* 单张行动卡 */
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: var(--surface-card, #fff);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.2s;
+}
+
+.cardDone {
+  border-color: #ccfbf1;
+  background: #f0fdfa;
+}
+
+:global(.dark) .card {
+  border-color: #334155;
+}
+
+:global(.dark) .cardDone {
+  border-color: #2dd4bf;
+  background: #0f2e2d;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.cardText {
+  flex: 1;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.cardDone .cardText {
+  color: #0f766e;
+  text-decoration: line-through;
+}
+
+:global(.dark) .cardText {
+  color: #e2e8f0;
+}
+
+:global(.dark) .cardDone .cardText {
+  color: #5eead4;
+}
+
+/* 状态徽章 */
+.badge {
+  flex: none;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  white-space: nowrap;
+}
+
+.badgePending {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.badgeDone {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+:global(.dark) .badgePending {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+:global(.dark) .badgeDone {
+  background: #134e4a;
+  color: #5eead4;
+}
+
+/* 展开/收起按钮（卡片右上角，弱存在感） */
+.collapseToggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  min-height: 32px;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.collapseToggle:hover {
+  color: #334155;
+  background: #f1f5f9;
+}
+
+:global(.dark) .collapseToggle:hover {
+  color: #e2e8f0;
+  background: #334155;
+}
+
+.caret {
+  font-size: 0.625rem;
+}
+
+/* 收起态：只留一句金句 */
+.collapsedHint {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* 卡片内的标签 chips */
+.cardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.cardChip {
+  font-size: 0.75rem;
+  border-radius: 999px;
+  padding: 0.1875rem 0.625rem;
+  background: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
+}
+
+:global(.dark) .cardChip {
+  background: #134e4a;
+  border-color: #2dd4bf;
+  color: #5eead4;
+}
+
+.moreCount {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  align-self: center;
+}
+
+/* 难度自评展示 */
+.difficultyTag {
+  font-size: 0.75rem;
+  color: #64748b;
+  align-self: flex-start;
+}
+
+/* 原理金句 */
+.quote {
+  border-left: 3px solid #0d9488;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #0f766e;
+  background: #f0fdfa;
+  border-radius: 0 0.375rem 0.375rem 0;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+:global(.dark) .quote {
+  background: #134e4a;
+  color: #5eead4;
+  border-left-color: #2dd4bf;
+}
+
+/* 卡片底部操作区 */
+.cardFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.completeBtn {
+  align-self: flex-start;
+  border: 1px solid #0d9488;
+  background: #fff;
+  color: #0d9488;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.completeBtn:hover {
+  background: #0d9488;
+  color: #fff;
+}
+
+:global(.dark) .completeBtn {
+  background: transparent;
+}
+
+/* 完成后的情绪选择 */
+.moodPicker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.moodBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #f8fafc;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  flex: 1;
+  min-width: 140px;
+}
+
+.moodBtn:hover {
+  border-color: #0d9488;
+  background: #f0fdfa;
+}
+
+.moodEmoji {
+  font-size: 1.125rem;
+  flex: none;
+}
+
+:global(.dark) .moodBtn {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+/* 已选择的情绪展示 */
+.moodDone {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #0f766e;
+}
+
+.moodDoneLabel {
+  font-weight: 600;
+}
+
+.moodDoneAction {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.moodDoneAction:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+:global(.dark) .moodDoneAction:hover {
+  color: #fff;
+  background: #334155;
+}
+
+/* 即时回应文案 */
+.moodResponse {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #0f766e;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem;
+}
+
+:global(.dark) .moodResponse {
+  background: #134e4a;
+  border-color: #2dd4bf;
+  color: #99f6e4;
+}
+
+/* 完成后轻提示：「趁热刷一张相关卡片」（非催促、无红点） */
+.cardHint {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 0.8125rem;
+  color: #0d9488;
+  text-decoration: none;
+  margin-top: 0.125rem;
+  transition: opacity 0.15s;
+}
+
+.cardHint:hover {
+  opacity: 0.7;
+}
+
+:global(.dark) .cardHint {
+  color: #5eead4;
+}

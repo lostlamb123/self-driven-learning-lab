@@ -1,0 +1,571 @@
+/* 今日复盘页 —— 轻量样式（CSS Modules，无 UI 组件库）
+   跟随 index.css 的主题变量：浅色/暗色自动切换。
+   基调：移动端优先单列、大量留白、卡片 12px 圆角、浅灰边框，
+   三个自问 chip 用柔和绿/黄/红（红只表"不太在线/没太有效"，非错误警告），
+   不用进度条、不用分数、不用"完成度"。 */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* 页头 */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+:global(.dark) .title {
+  color: #e2e8f0;
+}
+
+:global(.dark) .subtitle {
+  color: #94a3b8;
+}
+
+/* 今日速览卡 */
+.snapshot {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: var(--surface-card, #fff);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+:global(.dark) .snapshot {
+  border-color: #334155;
+}
+
+.snapshotTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+:global(.dark) .snapshotTitle {
+  color: #cbd5e1;
+}
+
+.snapshotGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.snapItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.snapLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.snapValue {
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+:global(.dark) .snapValue {
+  color: #e2e8f0;
+}
+
+/* 0 项：非压力、不红 */
+.snapEmpty {
+  font-size: 0.8125rem;
+  color: #94a3b8;
+}
+
+:global(.dark) .snapEmpty {
+  color: #64748b;
+}
+
+/* 情绪分布 chips */
+.moodRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.moodChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8125rem;
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  color: #475569;
+}
+
+:global(.dark) .moodChip {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+/* 种子预览列表 */
+.seedList {
+  list-style: none;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.seedList li {
+  font-size: 0.8125rem;
+  color: #475569;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+:global(.dark) .seedList li {
+  color: #cbd5e1;
+}
+
+.snapHint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+:global(.dark) .snapHint {
+  color: #64748b;
+}
+
+/* 自问区 */
+.questions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+:global(.dark) .sectionTitle {
+  color: #e2e8f0;
+}
+
+.question {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.questionText {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.5;
+}
+
+:global(.dark) .questionText {
+  color: #e2e8f0;
+}
+
+/* chip 行 */
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 36px;
+}
+
+.chip:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+:global(.dark) .chip {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+:global(.dark) .chip:hover {
+  background: #334155;
+}
+
+/* 选中态：柔和，绿/黄/红 由 chip 内 emoji 主导，选中加描边 */
+.chipActive {
+  border-color: #0f172a;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+:global(.dark) .chipActive {
+  border-color: #e2e8f0;
+  background: #334155;
+  color: #e2e8f0;
+}
+
+/* 补充输入框（问题一/二） */
+.noteInput {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-height: 44px;
+}
+
+.noteInput::placeholder {
+  color: #94a3b8;
+}
+
+.noteInput:focus {
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+:global(.dark) .noteInput {
+  background: #0f172a;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+/* 反例 textarea（问题三） */
+.surpriseBox {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: #0f172a;
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.surpriseBox::placeholder {
+  color: #94a3b8;
+}
+
+.surpriseBox:focus {
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+}
+
+:global(.dark) .surpriseBox {
+  background: #0f172a;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+.surpriseHint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #0d9488;
+}
+
+:global(.dark) .surpriseHint {
+  color: #5eead4;
+}
+
+/* 保存按钮 */
+.saveRow {
+  display: flex;
+  justify-content: center;
+}
+
+.saveBtn {
+  background: #0d9488;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 2rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 44px;
+}
+
+.saveBtn:hover {
+  background: #0f766e;
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+:global(.dark) .saveBtn {
+  background: #14b8a6;
+}
+
+:global(.dark) .saveBtn:hover {
+  background: #0d9488;
+}
+
+/* 已复盘提示 */
+.savedNote {
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #64748b;
+  margin: 0;
+}
+
+:global(.dark) .savedNote {
+  color: #94a3b8;
+}
+
+/* 模型迭代日志（默认折叠） */
+.pastSection {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: var(--surface-card, #fff);
+  overflow: hidden;
+}
+
+:global(.dark) .pastSection {
+  border-color: #334155;
+}
+
+.pastToggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  min-height: 44px;
+  text-align: left;
+}
+
+.pastToggle:hover {
+  background: #f8fafc;
+}
+
+:global(.dark) .pastToggle {
+  color: #e2e8f0;
+}
+
+:global(.dark) .pastToggle:hover {
+  background: #1e293b;
+}
+
+.pastCaret {
+  flex: none;
+  font-size: 0.625rem;
+  color: #94a3b8;
+}
+
+/* 展开区：副标题 + 条目列表 */
+.pastBody {
+  padding: 0 1rem 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+:global(.dark) .pastBody {
+  border-top-color: #334155;
+}
+
+.pastSubtitle {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+:global(.dark) .pastSubtitle {
+  color: #64748b;
+}
+
+.pastList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pastItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+/* 左侧 ✦ 图标：柔和 teal，不用红色 */
+.pastIcon {
+  flex: none;
+  color: #0d9488;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+:global(.dark) .pastIcon {
+  color: #5eead4;
+}
+
+.pastItemBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.pastDate {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+:global(.dark) .pastDate {
+  color: #64748b;
+}
+
+.pastText {
+  display: block;
+  text-align: left;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #334155;
+  background: none;
+  border: none;
+  padding: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  transition: color 0.15s;
+}
+
+/* 超过 120 字：截断行（默认省略号，点击展开全文） */
+.pastTextClamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.pastTextClamp:hover {
+  color: #0d9488;
+}
+
+:global(.dark) .pastText {
+  color: #cbd5e1;
+}
+
+:global(.dark) .pastTextClamp:hover {
+  color: #5eead4;
+}
+
+/* 展开/收起提示小字 */
+.pastExpandHint {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+:global(.dark) .pastExpandHint {
+  color: #64748b;
+}
+
+/* 底部轻量入口 */
+.footerLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+:global(.dark) .footerLinks {
+  border-top-color: #334155;
+}
+
+.footerLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: var(--surface-card, #fff);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #475569;
+  text-decoration: none;
+  transition: all 0.15s;
+  min-height: 44px;
+}
+
+.footerLink:hover {
+  border-color: #0d9488;
+  background: #f0fdfa;
+  color: #0f766e;
+}
+
+:global(.dark) .footerLink {
+  border-color: #334155;
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+:global(.dark) .footerLink:hover {
+  border-color: #2dd4bf;
+  background: #134e4a;
+  color: #5eead4;
+}

@@ -1,82 +1,40 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../store/appStore'
-import { isKeyOnOrBeforeToday, toDateKey } from '../utils/date'
-import { computeStreak } from '../utils/streak'
+import { toDateKey } from '../utils/date'
+import { useMinimalActionStore, computeActionStreak } from '../stores/minimalActionStore'
+import {
+  useConceptCardStore,
+  selectTodayCards,
+} from '../stores/conceptCardStore'
+import { useDailyReviewStore, selectTodayReview } from '../stores/dailyReviewStore'
+import MinimalActionSection from '../components/minimal-action/MinimalActionSection'
+import CuriositySeedSection from '../components/curiosity-seed/CuriositySeedSection'
+import styles from './TodayPage.module.css'
 
-/** 生成本地唯一的实体 id（带类型前缀，便于跨类型去重与调试） */
-function newEntityId(prefix: string): string {
-  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
-}
-
+/**
+ * 今日页 —— 把「今日最小行动」与「今日好奇种子」组合到同一页面（路由 /today）。
+ *
+ * 页面结构（自上而下）：
+ * 1. 页面标题「今天只做一件小事」
+ * 2. 副标题「小到不会逃避，就是最好的开始。」
+ * 3. 今日最小行动：输入区 + 行动卡片列表
+ * 4. 今日好奇种子：输入框 + 今日种子列表（最多 5 条，超出可展开）
+ * 5. 底部极轻量「连续做到」展示：有记录才显示，不催促
+ *
+ * 样式基调：移动端优先单列、大量留白、12px 圆角、浅灰边框，
+ * 不用红色/警告色/倒计时。
+ */
 export default function TodayPage() {
   const data = useAppStore((s) => s.data)
-  const updateData = useAppStore((s) => s.updateData)
-
-  const [newAction, setNewAction] = useState('')
   const todayKey = useMemo(() => toDateKey(), [])
 
-  // 当天的行动列表（按 order 排序）
-  const todayActions = useMemo(
-    () =>
-      data.actions
-        .filter((a) => a.date === todayKey)
-        .sort((a, b) => a.order - b.order),
-    [data.actions, todayKey],
-  )
-
-  const streak = useMemo(() => computeStreak(data.actions), [data.actions])
-
-  // 今日是否已有复盘记录
+  // 今日是否已有复盘记录（保留「去复盘」入口）
   const reviewedToday = useMemo(
     () => data.reviews.some((r) => r.date === todayKey),
     [data.reviews, todayKey],
   )
-
-  // 今日待复习的卡片数：nextReviewAt 不晚于今天的概念卡片
-  const dueCardsCount = useMemo(
-    () =>
-      data.concepts.filter((c) => c.nextReviewAt !== undefined && isKeyOnOrBeforeToday(c.nextReviewAt)).length,
-    [data.concepts],
-  )
-
-  /** 新增行动：默认关联当天日期，类型默认 practice，order 追加到末尾 */
-  function handleAddAction(e: FormEvent) {
-    e.preventDefault()
-    const title = newAction.trim()
-    if (!title) return
-
-    updateData((draft) => {
-      const maxOrder = draft.actions.reduce((m, a) => Math.max(m, a.order), 0)
-      const now = new Date().toISOString()
-      draft.actions.push({
-        id: newEntityId('act'),
-        createdAt: now,
-        updatedAt: now,
-        date: todayKey,
-        title,
-        type: 'practice',
-        status: 'todo',
-        estimatedMinutes: 15,
-        order: maxOrder + 1,
-      })
-    })
-    setNewAction('')
-  }
-
-  /** 切换完成/未完成状态 */
-  function toggleAction(actionId: string) {
-    updateData((draft) => {
-      const target = draft.actions.find((a) => a.id === actionId)
-      if (!target) return
-      target.status = target.status === 'done' ? 'todo' : 'done'
-      target.updatedAt = new Date().toISOString()
-      if (target.status === 'done') {
-        // 完成时若未填实际耗时，给一个默认值
-        target.actualMinutes = target.actualMinutes ?? target.estimatedMinutes
-      }
-    })
-  }
 
   const quickLinks = [
     { path: '/cards', label: '卡片', desc: '间隔复习', icon: '▤' },
@@ -89,43 +47,123 @@ export default function TodayPage() {
     dateStyle: 'full',
   }).format(new Date())
 
+  /* 底部「连续做到」展示：读最小行动 store 的完成记录，允许断签 */
+  const allActions = useMinimalActionStore((s) => s.actions)
+  const streak = useMemo(() => computeActionStreak(allActions), [allActions])
+  // 只在「有完成记录」时显示；无记录则整块隐藏（不催促）
+  const showStreak = streak.active || streak.streak > 0
+
+  /* 「概念卡片」入口：读今日待刷卡数，只在有卡时显示（不强制、不催促） */
+  const pendingConceptCount = useConceptCardStore(
+    useShallow((s) => selectTodayCards(s).length),
+  )
+
+  /* 元认知复盘入口：读今日是否已复盘 */
+  const metaReviewedToday = useDailyReviewStore((s) =>
+    selectTodayReview(s) !== null,
+  )
+
   return (
-    <div className="flex flex-col gap-6">
-      {/* 页头 */}
+    <div className="flex flex-col gap-8">
+      {/* 1. 页面标题 + 2. 副标题 */}
       <header>
-        <h1 className="text-2xl font-bold tracking-tight">今日</h1>
-        <p className="mt-0.5 text-sm text-slate-500">{todayLabel}</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          今天只做一件小事
+        </h1>
+        <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
+          小到不会逃避，就是最好的开始。
+        </p>
+        <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{todayLabel}</p>
       </header>
 
-      {/* 指标卡 */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="text-xs font-medium text-slate-500">连续行动</div>
-          <div className="mt-1 text-3xl font-bold text-teal-600">{streak}</div>
-          <div className="text-xs text-slate-400">天</div>
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <div className="text-xs font-medium text-slate-500">今日待复习</div>
-          <div className="mt-1 text-3xl font-bold text-slate-800">{dueCardsCount}</div>
-          <div className="text-xs text-slate-400">张概念卡片</div>
-        </div>
-      </div>
+      {/* 3. 今日最小行动（输入区 + 行动卡片列表） */}
+      <MinimalActionSection />
 
-      {/* 快速入口 */}
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">快速入口</h2>
+      {/* 4. 今日好奇种子（输入框 + 今日种子列表） */}
+      <CuriositySeedSection />
+
+      {/* 「概念卡片」入口：有今日待刷卡时才显示，轻量、不催促 */}
+      {pendingConceptCount > 0 && (
+        <Link
+          to="/concept-cards"
+          className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 transition-colors hover:border-teal-300 hover:bg-teal-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-teal-500/50 dark:hover:bg-slate-700"
+        >
+          今天还有 {pendingConceptCount} 张卡片没刷
+          <span aria-hidden>→</span>
+        </Link>
+      )}
+
+      {/* 5. 底部极轻量「连续做到」展示：有记录才显示，不催促 */}
+      {showStreak && (
+        <footer className="border-t border-slate-200 pt-5 text-center dark:border-slate-700">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            你已经连续做到 {streak.streak} 天。
+          </p>
+          {/* 随天数变化的原理短句：非催促，只说联结本身 */}
+          <p className={styles.streakHint}>
+            {streakPrinciple(streak.streak, streak.restarted)}
+          </p>
+        </footer>
+      )}
+
+      {/* 元认知复盘入口：未复盘→「花 2 分钟…」；已复盘→「今天已复盘…」；不催促、不红点、不连续打卡 */}
+      <Link
+        to="/review"
+        className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 transition-colors hover:border-teal-300 hover:bg-teal-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-teal-500/50 dark:hover:bg-slate-700"
+      >
+        {metaReviewedToday
+          ? '今天已复盘。可以再看看'
+          : '花 2 分钟，给今天留一条反馈'}
+        <span aria-hidden>→</span>
+      </Link>
+
+      {/* 费曼输出入口：极轻、不催促，引导把理解讲给别人听 */}
+      <Link
+        to="/output?tab=feynman"
+        className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 transition-colors hover:border-teal-300 hover:bg-teal-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-teal-500/50 dark:hover:bg-slate-700"
+      >
+        今天想讲清楚哪个概念？
+        <span aria-hidden>→</span>
+      </Link>
+
+      {/* 一页纸入口：极轻、不催促，与费曼入口并列，引导「从点到网」 */}
+      <Link
+        to="/output?tab=one-pager"
+        className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 transition-colors hover:border-teal-300 hover:bg-teal-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-teal-500/50 dark:hover:bg-slate-700"
+      >
+        想把今天学的串成一张网？
+        <span aria-hidden>→</span>
+      </Link>
+
+      {/* 快速入口 + 复盘入口（保留原有能力，弱化视觉权重） */}
+      <section className="border-t border-slate-200 pt-6 dark:border-slate-700">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+            想去别的地方
+          </h2>
+          <Link
+            to="/review"
+            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+              reviewedToday
+                ? 'border-teal-300 bg-teal-50 text-teal-700 hover:bg-teal-100 dark:border-teal-500/50 dark:bg-teal-900/30 dark:text-teal-300'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300 hover:bg-teal-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300'
+            }`}
+          >
+            {reviewedToday ? '查看今日复盘' : '去复盘'}
+          </Link>
+        </div>
         <div className="grid grid-cols-2 gap-3">
           {quickLinks.map((l) => (
             <Link
               key={l.path}
               to={l.path}
-              className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-teal-300 hover:bg-teal-50"
+              className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3.5 transition-colors hover:border-teal-300 hover:bg-teal-50 dark:border-slate-600 dark:bg-slate-800 dark:hover:border-teal-500/50 dark:hover:bg-slate-700"
             >
-              <span className="text-2xl" aria-hidden>
+              <span className="text-xl" aria-hidden>
                 {l.icon}
               </span>
               <span className="flex flex-col">
-                <span className="text-sm font-semibold text-slate-800 group-hover:text-teal-700">
+                <span className="text-sm font-semibold text-slate-800 group-hover:text-teal-700 dark:text-slate-100">
                   {l.label}
                 </span>
                 <span className="text-xs text-slate-400">{l.desc}</span>
@@ -134,91 +172,23 @@ export default function TodayPage() {
           ))}
         </div>
       </section>
-
-      {/* 复盘入口 */}
-      <Link
-        to="/review"
-        className={`flex items-center justify-between rounded-xl border p-4 transition-colors ${
-          reviewedToday
-            ? 'border-teal-300 bg-teal-50 hover:bg-teal-100'
-            : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-teal-50'
-        }`}
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-2xl" aria-hidden>
-            ↻
-          </span>
-          <div>
-            <div className="text-sm font-semibold text-slate-800">
-              {reviewedToday ? '查看今日复盘' : '去复盘'}
-            </div>
-            <div className="text-xs text-slate-400">
-              {reviewedToday ? '今日已复盘，点击可查看与修改' : '花 2 分钟回顾今天'}
-            </div>
-          </div>
-        </div>
-        <span className="text-slate-400">→</span>
-      </Link>
-
-      {/* 今日最小行动 */}
-      <section>
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">今日最小行动</h2>
-
-        <form onSubmit={handleAddAction} className="mb-3 flex gap-2">
-          <input
-            value={newAction}
-            onChange={(e) => setNewAction(e.target.value)}
-            placeholder="今天要做的一件小事…"
-            className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
-          />
-          <button
-            type="submit"
-            disabled={!newAction.trim()}
-            className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            添加
-          </button>
-        </form>
-
-        {todayActions.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-6 text-center text-sm text-slate-400">
-            今天还没有行动，添加一个最小的、能立刻动手的事。
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-2">
-            {todayActions.map((a) => {
-              const done = a.status === 'done'
-              return (
-                <li
-                  key={a.id}
-                  className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5"
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleAction(a.id)}
-                    aria-label={done ? '标记未完成' : '标记完成'}
-                    className={`flex h-5 w-5 flex-none items-center justify-center rounded-full border text-xs transition-colors ${
-                      done
-                        ? 'border-teal-600 bg-teal-600 text-white'
-                        : 'border-slate-300 text-transparent hover:border-teal-400'
-                    }`}
-                  >
-                    ✓
-                  </button>
-                  <span
-                    className={`flex-1 text-sm ${
-                      done ? 'text-slate-400 line-through' : 'text-slate-700'
-                    }`}
-                  >
-                    {a.title}
-                  </span>
-                  <span className="text-xs text-slate-400">{a.estimatedMinutes} 分钟</span>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </section>
     </div>
   )
+}
+
+/**
+ * 连续做到天数的原理短句（随天数变化，非催促）。
+ *
+ * - 断签后今天重新开始 → 先说「重新开始也是一次做到」（不制造断签焦虑）
+ * - 1—2 天：联结刚建立
+ * - 3—6 天：强化期
+ * - 7 天以上：回路较稳固
+ */
+function streakPrinciple(streak: number, restarted: boolean): string {
+  if (restarted) return '重新开始也是一次做到。联结不会因为断一天就消失。'
+  if (streak >= 7) {
+    return '这条回路已经比较稳固了。断一天也不会消失，但再亮一次会更好。'
+  }
+  if (streak >= 3) return '联结正在被强化，信息传输在变快。'
+  return '新的联结刚刚亮起。'
 }
