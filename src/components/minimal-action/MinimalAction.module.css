@@ -574,22 +574,3 @@
   border-color: #2dd4bf;
   color: #99f6e4;
 }
-
-/* 完成后轻提示：「趁热刷一张相关卡片」（非催促、无红点） */
-.cardHint {
-  display: inline-block;
-  align-self: flex-start;
-  font-size: 0.8125rem;
-  color: #0d9488;
-  text-decoration: none;
-  margin-top: 0.125rem;
-  transition: opacity 0.15s;
-}
-
-.cardHint:hover {
-  opacity: 0.7;
-}
-
-:global(.dark) .cardHint {
-  color: #5eead4;
-}

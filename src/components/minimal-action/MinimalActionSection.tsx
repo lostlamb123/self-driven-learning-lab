@@ -10,14 +10,12 @@
  * 连续天数展示在页面底部（由 TodayPage 负责），模块内不做指标/进度条。
  */
 import { useMemo, useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
 import { useShallow } from 'zustand/react/shallow'
 import { useAppStore } from '../../store/appStore'
 import {
   useMinimalActionStore,
   selectTodayActions,
 } from '../../stores/minimalActionStore'
-import { useConceptCardStore, selectTodayCards } from '../../stores/conceptCardStore'
 import {
   MINIMAL_ACTION_PRINCIPLES,
   MINIMAL_DIFFICULTY_LABEL,
@@ -73,11 +71,6 @@ export default function MinimalActionSection() {
   /** useShallow：派生数组每次是新引用，浅比较按 id 判定，避免无限渲染 */
   const todayActions = useMinimalActionStore(
     useShallow((s) => selectTodayActions(s)),
-  )
-
-  /** 今日待刷卡数（概念卡）：标记完成后若仍有待刷卡，在卡片底部显轻提示 */
-  const pendingCardCount = useConceptCardStore(
-    useShallow((s) => selectTodayCards(s).length),
   )
 
   /** 正在做「完成」操作（展开情绪选择器）的行动 id 集合 */
@@ -249,7 +242,6 @@ export default function MinimalActionSection() {
               onOpenMoodPicker={() => handleComplete(action.id)}
               onMoodSelect={(mood) => handleMoodSelect(action.id, mood)}
               onReopen={() => handleReopen(action.id)}
-              showCardHint={pendingCardCount > 0}
             />
           ))}
         </div>
@@ -271,7 +263,6 @@ function ActionCard({
   onOpenMoodPicker,
   onMoodSelect,
   onReopen,
-  showCardHint,
 }: {
   action: MinimalAction
   quote: string
@@ -281,8 +272,6 @@ function ActionCard({
   onOpenMoodPicker: () => void
   onMoodSelect: (mood: MinimalMood) => void
   onReopen: () => void
-  /** 今日仍有待刷卡时，在"已完成"卡片底部显轻提示 */
-  showCardHint: boolean
 }) {
   const done = action.status === 'done'
   const visibleTags = action.tags.slice(0, MAX_VISIBLE_TAGS)
@@ -417,15 +406,6 @@ function ActionCard({
                 <div className={styles.moodResponse}>
                   {MINIMAL_MOOD_RESPONSE[action.mood]}
                 </div>
-                {/* 完成后若今日仍有待刷卡，给一行轻提示（非催促、无红点） */}
-                {showCardHint && (
-                  <Link
-                    to="/concept-cards"
-                    className={styles.cardHint}
-                  >
-                    趁热刷一张相关卡片 →
-                  </Link>
-                )}
               </>
             )}
           </div>

@@ -6,6 +6,7 @@
  *
  * 页面结构（自上而下）：
  * 1. 标题「概念卡片」+ 副标题「看正面，先自己想；翻背面，核对并标记。」
+ *    + 常驻说明小字「大脑的联结需要反复放电才能稳固……」
  * 2. 今日待刷卡片区：显示今天需复习的卡（new 或 review 且 nextReviewAt<=今天），最多 5 张
  * 3. 每张卡：默认只显示正面 → 点「翻面」显示背面 + 例子 + 来源 → 出现三个标记按钮
  * 4. 空状态：「今天的卡片已经刷完了。明天再来，让联结再亮一次。」
@@ -34,6 +35,10 @@ const DAILY_REVIEW_LIMIT = 5
 const TITLE = '概念卡片'
 const SUBTITLE = '看正面，先自己想；翻背面，核对并标记。'
 
+/** 副标题下方的常驻说明小字：解释「为什么要一次又一次来见同一张卡」 */
+const SUBTITLE_NOTE =
+  '大脑的联结需要反复放电才能稳固——这是人类用可塑性换高上限的代价。'
+
 /** 空状态文案（正向、非压力） */
 const EMPTY_COPY = '今天的卡片已经刷完了。明天再来，让联结再亮一次。'
 
@@ -50,9 +55,8 @@ const MARK_OPTIONS: {
 
 /** 标记后的一句话轻提示（正向、具体、非评判） */
 const MARK_FEEDBACK: Record<ReviewResult, string> = {
-  good: '这张卡已经进入你的长期记忆。',
-  again:
-    '明天再见一次。大脑的联结需要反复放电才能稳固——这是人类用可塑性换高上限的代价。',
+  good: '这张卡会在一周后再见一次。',
+  again: '明天再见一次。',
   hard: '没关系，今天再刷一次就好。',
 }
 
@@ -112,10 +116,11 @@ export default function ConceptCardsPage() {
 
   return (
     <div className={styles.page}>
-      {/* 1. 标题 + 2. 副标题 */}
+      {/* 1. 标题 + 2. 副标题（+ 常驻说明小字） */}
       <header className={styles.header}>
         <h1 className={styles.title}>{TITLE}</h1>
         <p className={styles.subtitle}>{SUBTITLE}</p>
+        <p className={styles.subtitleNote}>{SUBTITLE_NOTE}</p>
       </header>
 
       {/* 3. 今日待刷卡片区 */}

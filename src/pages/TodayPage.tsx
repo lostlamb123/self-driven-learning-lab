@@ -1,8 +1,6 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useShallow } from 'zustand/react/shallow'
-import { useAppStore } from '../store/appStore'
-import { toDateKey } from '../utils/date'
 import { useMinimalActionStore, computeActionStreak } from '../stores/minimalActionStore'
 import {
   useConceptCardStore,
@@ -27,15 +25,6 @@ import styles from './TodayPage.module.css'
  * 不用红色/警告色/倒计时。
  */
 export default function TodayPage() {
-  const data = useAppStore((s) => s.data)
-  const todayKey = useMemo(() => toDateKey(), [])
-
-  // 今日是否已有复盘记录（保留「去复盘」入口）
-  const reviewedToday = useMemo(
-    () => data.reviews.some((r) => r.date === todayKey),
-    [data.reviews, todayKey],
-  )
-
   const quickLinks = [
     { path: '/cards', label: '卡片', desc: '间隔复习', icon: '▤' },
     { path: '/reading', label: '阅读', desc: '读书笔记', icon: '📖' },
@@ -88,7 +77,7 @@ export default function TodayPage() {
           to="/concept-cards"
           className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 transition-colors hover:border-teal-300 hover:bg-teal-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-teal-500/50 dark:hover:bg-slate-700"
         >
-          今天还有 {pendingConceptCount} 张卡片没刷
+          今天还有 {pendingConceptCount} 张卡片
           <span aria-hidden>→</span>
         </Link>
       )}
@@ -135,23 +124,11 @@ export default function TodayPage() {
         <span aria-hidden>→</span>
       </Link>
 
-      {/* 快速入口 + 复盘入口（保留原有能力，弱化视觉权重） */}
+      {/* 快速入口（保留原有能力，弱化视觉权重） */}
       <section className="border-t border-slate-200 pt-6 dark:border-slate-700">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-            想去别的地方
-          </h2>
-          <Link
-            to="/review"
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-              reviewedToday
-                ? 'border-teal-300 bg-teal-50 text-teal-700 hover:bg-teal-100 dark:border-teal-500/50 dark:bg-teal-900/30 dark:text-teal-300'
-                : 'border-slate-200 bg-white text-slate-600 hover:border-teal-300 hover:bg-teal-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300'
-            }`}
-          >
-            {reviewedToday ? '查看今日复盘' : '去复盘'}
-          </Link>
-        </div>
+        <h2 className="mb-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
+          想去别的地方
+        </h2>
         <div className="grid grid-cols-2 gap-3">
           {quickLinks.map((l) => (
             <Link
